@@ -1,4 +1,4 @@
-#import sklearn
+import sklearn
 import xlrd
 import numpy as np
 import sys
@@ -55,7 +55,7 @@ if __name__ == "__main__":
 
     model = NNmodel(7,[32,64,128,256,128,64,32],0.1)
     model.to(device)
-    optimizer = torch.optim.SGD(model.parameters(), lr = 0.5, momentum=0.7, weight_decay=0.0005)
+    optimizer = torch.optim.SGD(model.parameters(), lr = 0.02, momentum=0.7, weight_decay=0.0005)
     step_lr = torch.optim.lr_scheduler.MultiStepLR(optimizer=optimizer,milestones=[5,10,20,40,80], gamma=0.5)
 
     epochs = 100
