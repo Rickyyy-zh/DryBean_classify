@@ -93,3 +93,4 @@ def plot_curve(idx, data1,data2,data3):
     plt.subplots_adjust(wspace=0.5)
     
     plt.savefig("./train_process.jpg")
+    plt.close(fig)

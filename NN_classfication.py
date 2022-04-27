@@ -55,11 +55,13 @@ if __name__ == "__main__":
 
     model = NNmodel(7,[32,64,128,256,128,64,32],0.1)
     model.to(device)
-    optimizer = torch.optim.SGD(model.parameters(), lr = 0.02, momentum=0.7, weight_decay=0.0005)
-    step_lr = torch.optim.lr_scheduler.MultiStepLR(optimizer=optimizer,milestones=[5,10,20,40,80], gamma=0.5)
+    optimizer = torch.optim.SGD(model.parameters(), lr = 0.01, momentum=0.7, weight_decay=0.0005)
+    # warm_lr =  torch.optim.lr_scheduler.LinearLR(optimizer=optimizer,start_factor=0.5,end_factor = 0.1, total_iters=4)
+    step_lr = torch.optim.lr_scheduler.MultiStepLR(optimizer=optimizer,milestones=[5,10,15,20,40], gamma=0.5)
+    # all_lr = torch.optim.lr_scheduler.SequentialLR(optimizer=optimizer,schedulers= [warm_lr,step_lr],milestones=[5])
 
-    epochs = 100
-    ax_epoch = list(range(0,epochs))
+    epochs = 60
+    ax_epoch = []
     ax_trainloss = []
     ax_testloss = []
     ax_acc = []
@@ -103,6 +105,8 @@ if __name__ == "__main__":
         ax_trainloss.append( train_loss/train_num)
         ax_testloss.append(test_loss/test_num)
         ax_acc.append(acc/test_num)
+        ax_epoch.append(epoch)
+        plot_curve(ax_epoch,ax_trainloss,ax_testloss,ax_acc)
+
     print("finshed training")
-    plot_curve(ax_epoch,ax_trainloss,ax_testloss,ax_acc)
 

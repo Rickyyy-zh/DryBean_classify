@@ -10,7 +10,7 @@ import torch
 from utils import loaddata, data_analysis, plot_curve
 from NN_classfication import NNmodel
 from sklearn.preprocessing import label_binarize
-from sklearn.metrics import roc_auc_score,precision_recall_curve, average_precision_score,precision_recall_fscore_support
+from sklearn.metrics import roc_auc_score,precision_recall_curve, average_precision_score,precision_recall_fscore_support,accuracy_score
 
 if __name__ == "__main__":
     device = torch.device("cpu")
@@ -30,7 +30,7 @@ if __name__ == "__main__":
     acc = 0
     test_num = test_data.shape[0]
     pred = np.zeros((test_num,7))
-    pred_argmax = np.zeros((test_num,7))
+    pred_argmax = np.zeros((test_num,1))
 
     for i in range(test_num):
         test_in, _lb = torch.tensor(test_data[i,:]).to(device), torch.tensor(test_lb[i,:],dtype=torch.long).to(device)
@@ -43,9 +43,9 @@ if __name__ == "__main__":
         pred_argmax[i,:] = result.detach().numpy()
     pre  = average_precision_score(test_lb_onehot,pred)
     print(pre)
-    print("{:.3f}".format(acc/test_num))
+    print("{:.10f}".format(acc/test_num))
 
-    pre_l, re_l, f1_l = precision_recall_fscore_support(test_lb, pred_argmax)
-    print(pre_l, re_l, f1_l)
+    pre_l= accuracy_score(test_lb.T[0,:], pred_argmax.T[0,:])
+    print(pre_l)
 
 
