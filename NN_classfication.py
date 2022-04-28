@@ -8,6 +8,8 @@ import json
 import torch.nn as nn
 import torch
 from utils import loaddata, data_analysis, plot_curve
+from sklearn.preprocessing import label_binarize
+from sklearn.metrics import roc_auc_score,precision_recall_curve, average_precision_score,precision_recall_fscore_support,accuracy_score,classification_report
 
 class NNmodel(nn.Module):
     def __init__(self, depth, dims, dropoutP):
@@ -55,16 +57,18 @@ if __name__ == "__main__":
 
     model = NNmodel(7,[32,64,128,256,128,64,32],0.1)
     model.to(device)
-    optimizer = torch.optim.SGD(model.parameters(), lr = 0.0004, momentum=0.9, weight_decay=0.0005)
+    optimizer = torch.optim.SGD(model.parameters(), lr = 0.001, momentum=0.9, weight_decay=0.0005)
     # warm_lr =  torch.optim.lr_scheduler.LinearLR(optimizer=optimizer,start_factor=0.5,end_factor = 0.1, total_iters=4)
-    step_lr = torch.optim.lr_scheduler.MultiStepLR(optimizer=optimizer,milestones=[3,5,10,40], gamma=0.5)
+    step_lr = torch.optim.lr_scheduler.MultiStepLR(optimizer=optimizer,milestones=[5,20,40], gamma=0.8)
     # all_lr = torch.optim.lr_scheduler.SequentialLR(optimizer=optimizer,schedulers= [warm_lr,step_lr],milestones=[5])
+    test_lb_onehot = label_binarize(test_lb,classes = [0,1,2,3,4,5,6])
 
     epochs = 80
     ax_epoch = []
     ax_trainloss = []
     ax_testloss = []
     ax_acc = []
+    pred = np.zeros((test_data.shape[0],7))
     for epoch in range(epochs):
         model.train()
         train_loss = 0 
@@ -93,6 +97,7 @@ if __name__ == "__main__":
                 loss = loss_fn(out, _lb)
                 acc += torch.eq(result,_lb).sum().item()
                 test_loss += loss.item()
+                pred[i,:] = out.detach().numpy()
 
         print("train epoch [{}/{}]  train_loss:{:.3f} test_loss:{:.3f} accurancy:{:.3f}".format(
                                     epoch+1, epochs, train_loss/train_num,test_loss/test_num, acc/test_num))
@@ -107,6 +112,7 @@ if __name__ == "__main__":
         ax_acc.append(acc/test_num)
         ax_epoch.append(epoch)
         plot_curve(ax_epoch,ax_trainloss,ax_testloss,ax_acc)
+        ap  = average_precision_score(test_lb_onehot,pred)
 
     print("finshed training")
 
