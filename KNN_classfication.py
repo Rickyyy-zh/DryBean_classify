@@ -6,6 +6,7 @@ import os
 import matplotlib.pyplot as plt
 from utils import loaddata, data_analysis, plot_curve
 from scipy.spatial.distance import euclidean
+from sklearn.metrics import roc_auc_score,precision_recall_curve, average_precision_score,precision_recall_fscore_support,accuracy_score,classification_report
 
 
 class KNN_classfier():
@@ -32,7 +33,7 @@ if __name__ == "__main__":
     train_data = (train_data - mean)/std
     test_data = (test_data - mean)/std
 
-    K_list = [9,10]
+    K_list = [21]
     for k in K_list:
         KNN_model = KNN_classfier(K = k , train_data= train_data, train_lb= train_lb)
         acc = 0
@@ -46,3 +47,4 @@ if __name__ == "__main__":
 
             pred[i,:] = result
         print("with K = {}, accurancy = {:.10f}".format(k,acc/test_num))
+        print(classification_report(test_lb.T[0,:], pred.T[0,:]))

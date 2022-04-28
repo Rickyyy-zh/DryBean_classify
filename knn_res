@@ -1,0 +1,45 @@
+with K = 1, accurancy = 0.9192364170
+with K = 2, accurancy = 0.9096916300
+with K = 3, accurancy = 0.9236417034
+with K = 4, accurancy = 0.9243759178
+with K = 5, accurancy = 0.9265785609
+with K = 6, accurancy = 0.9251101322
+with K = 7, accurancy = 0.9265785609
+with K = 8, accurancy = 0.9287812041
+with K = 9, accurancy = 0.9265785609
+with K = 10, accurancy = 0.9287812041
+with K = 11, accurancy = 0.9280469897
+with K = 12, accurancy = 0.9273127753
+with K = 13, accurancy = 0.9258443465
+with K = 14, accurancy = 0.9287812041
+with K = 15, accurancy = 0.9265785609
+with K = 16, accurancy = 0.9280469897
+with K = 17, accurancy = 0.9265785609
+with K = 18, accurancy = 0.9302496329
+with K = 19, accurancy = 0.9295154185
+with K = 20, accurancy = 0.9302496329
+with K = 21, accurancy = 0.9324522761
+with K = 22, accurancy = 0.9309838473
+with K = 23, accurancy = 0.9302496329
+with K = 24, accurancy = 0.9309838473
+with K = 25, accurancy = 0.9287812041
+with K = 26, accurancy = 0.9295154185
+with K = 27, accurancy = 0.9287812041
+with K = 28, accurancy = 0.9287812041
+with K = 29, accurancy = 0.9280469897
+with K = 30, accurancy = 0.9295154185
+
+with K = 21, accurancy = 0.9324522761
+              precision    recall  f1-score   support
+
+         0.0       0.97      0.96      0.96       211
+         1.0       0.96      0.90      0.93       120
+         2.0       1.00      1.00      1.00        45
+         3.0       0.93      0.95      0.94       171
+         4.0       0.96      0.96      0.96       178
+         5.0       0.87      0.90      0.89       265
+         6.0       0.93      0.92      0.92       372
+
+    accuracy                           0.93      1362
+   macro avg       0.95      0.94      0.94      1362
+weighted avg       0.93      0.93      0.93      1362

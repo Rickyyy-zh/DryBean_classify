@@ -10,7 +10,7 @@ import torch
 from utils import loaddata, data_analysis, plot_curve
 from NN_classfication import NNmodel
 from sklearn.preprocessing import label_binarize
-from sklearn.metrics import roc_auc_score,precision_recall_curve, average_precision_score,precision_recall_fscore_support,accuracy_score
+from sklearn.metrics import roc_auc_score,precision_recall_curve, average_precision_score,precision_recall_fscore_support,accuracy_score,classification_report
 
 if __name__ == "__main__":
     device = torch.device("cpu")
@@ -24,7 +24,7 @@ if __name__ == "__main__":
     test_lb_onehot = label_binarize(test_lb,classes = [0,1,2,3,4,5,6])
 
 
-    model = torch.load("./best_pt.pt")
+    model = torch.load("./NN_01_res/best_pt.pt")
     model.eval()
     model.to(device)
     acc = 0
@@ -41,11 +41,12 @@ if __name__ == "__main__":
 
         pred[i,:] = out.detach().numpy()
         pred_argmax[i,:] = result.detach().numpy()
-    pre  = average_precision_score(test_lb_onehot,pred)
-    print(pre)
+    ap  = average_precision_score(test_lb_onehot,pred)
+    print(ap)
     print("{:.10f}".format(acc/test_num))
 
-    pre_l= accuracy_score(test_lb.T[0,:], pred_argmax.T[0,:])
-    print(pre_l)
+    pre,re,f1,_= precision_recall_fscore_support(test_lb.T[0,:], pred_argmax.T[0,:])
+    print(pre,re,f1)
+    print(classification_report(test_lb.T[0,:], pred_argmax.T[0,:]))
 
 

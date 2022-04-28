@@ -55,12 +55,12 @@ if __name__ == "__main__":
 
     model = NNmodel(7,[32,64,128,256,128,64,32],0.1)
     model.to(device)
-    optimizer = torch.optim.SGD(model.parameters(), lr = 0.01, momentum=0.7, weight_decay=0.0005)
+    optimizer = torch.optim.SGD(model.parameters(), lr = 0.0004, momentum=0.9, weight_decay=0.0005)
     # warm_lr =  torch.optim.lr_scheduler.LinearLR(optimizer=optimizer,start_factor=0.5,end_factor = 0.1, total_iters=4)
-    step_lr = torch.optim.lr_scheduler.MultiStepLR(optimizer=optimizer,milestones=[5,10,15,20,40], gamma=0.5)
+    step_lr = torch.optim.lr_scheduler.MultiStepLR(optimizer=optimizer,milestones=[3,5,10,40], gamma=0.5)
     # all_lr = torch.optim.lr_scheduler.SequentialLR(optimizer=optimizer,schedulers= [warm_lr,step_lr],milestones=[5])
 
-    epochs = 60
+    epochs = 80
     ax_epoch = []
     ax_trainloss = []
     ax_testloss = []
