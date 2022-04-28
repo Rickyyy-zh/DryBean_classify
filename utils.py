@@ -75,21 +75,26 @@ def data_analysis(dic_data):
 
     return train_data, train_label, test_data,test_label, mean, std
 
-def plot_curve(idx, data1,data2,data3):
-    fig = plt.figure(figsize=(15,5))
+def plot_curve(idx, data1,data2,data3,data4):
+    fig = plt.figure(figsize=(20,5))
     
-    ax_train_loss = fig.add_subplot(1,3,1)
+    ax_train_loss = fig.add_subplot(1,4,1)
     ax_train_loss.set_title("train loss")
     ax_train_loss.plot(idx,data1)
     
-    ax_acc = fig.add_subplot(1,3,3)
+    ax_acc = fig.add_subplot(1,4,3)
     ax_acc.set_title("test accurancy")
     ax_acc.plot(idx,data3)
     
-    ax_val_loss = fig.add_subplot(1,3,2)
+    ax_val_loss = fig.add_subplot(1,4,2)
     ax_val_loss.set_title("test loss")
     ax_val_loss.plot(idx,data2)
     
+    ax_aps = fig.add_subplot(1,4,4)
+    ax_aps.set_title("test loss")
+    ax_aps.plot(idx,data4)
+
+
     plt.subplots_adjust(wspace=0.5)
     
     plt.savefig("./train_process.jpg")

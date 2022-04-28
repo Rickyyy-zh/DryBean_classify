@@ -68,6 +68,7 @@ if __name__ == "__main__":
     ax_trainloss = []
     ax_testloss = []
     ax_acc = []
+    ax_ap = []
     pred = np.zeros((test_data.shape[0],7))
     for epoch in range(epochs):
         model.train()
@@ -106,13 +107,14 @@ if __name__ == "__main__":
             best_acc = acc
             torch.save(model, "./best_pt.pt")
         torch.save(model,"./last_pt.pt")
+        ap  = average_precision_score(test_lb_onehot,pred)
 
+        ax_ap.append(ap)
         ax_trainloss.append( train_loss/train_num)
         ax_testloss.append(test_loss/test_num)
         ax_acc.append(acc/test_num)
         ax_epoch.append(epoch)
-        plot_curve(ax_epoch,ax_trainloss,ax_testloss,ax_acc)
-        ap  = average_precision_score(test_lb_onehot,pred)
+        plot_curve(ax_epoch,ax_trainloss,ax_testloss,ax_acc,ax_ap)
 
     print("finshed training")
 
