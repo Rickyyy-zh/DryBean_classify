@@ -91,7 +91,7 @@ def plot_curve(idx, data1,data2,data3,data4):
     ax_val_loss.plot(idx,data2)
     
     ax_aps = fig.add_subplot(1,4,4)
-    ax_aps.set_title("test loss")
+    ax_aps.set_title("ap")
     ax_aps.plot(idx,data4)
 
 
