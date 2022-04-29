@@ -1,0 +1,3 @@
+    optimizer = torch.optim.SGD(model.parameters(), lr = 0.001, momentum=0.9, weight_decay=0.005)
+    step_lr = torch.optim.lr_scheduler.MultiStepLR(optimizer=optimizer,milestones=[5,10,40,80], gamma=0.5)
+    batchsz=10

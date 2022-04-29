@@ -24,7 +24,7 @@ if __name__ == "__main__":
     test_lb_onehot = label_binarize(test_lb,classes = [0,1,2,3,4,5,6])
 
 
-    model = torch.load("./NN_01_res/best_pt.pt")
+    model = torch.load("./best_pt.pt")
     model.eval()
     model.to(device)
     acc = 0

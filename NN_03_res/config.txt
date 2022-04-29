@@ -1,0 +1,6 @@
+    optimizer = torch.optim.SGD(model.parameters(), lr = 0.002, momentum=0.9, weight_decay=0.005)
+    # optimizer = torch.optim.Adam(model.parameters(),lr = 0.0002,weight_decay=0.00005)
+
+    step_lr = torch.optim.lr_scheduler.MultiStepLR(optimizer=optimizer,milestones=[10,40,80], gamma=0.5)
+    batch size =5 
+    input w/o dropout

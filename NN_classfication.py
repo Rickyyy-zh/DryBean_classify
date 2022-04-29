@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import json
 import torch.nn as nn
 import torch
+from torch.utils.data import DataLoader,TensorDataset
 from utils import loaddata, data_analysis, plot_curve
 from sklearn.preprocessing import label_binarize
 from sklearn.metrics import roc_auc_score,precision_recall_curve, average_precision_score,precision_recall_fscore_support,accuracy_score,classification_report
@@ -19,13 +20,15 @@ class NNmodel(nn.Module):
         self.dropout = dropoutP
         self.input = nn.Sequential(nn.Linear(16,dims[0]),
                             nn.ReLU(),
-                            nn.Dropout(self.dropout))
+                            # nn.Dropout(self.dropout)
+                            )
         for l in range(depth):
             if l<depth-1:
                 self.layer.append( self.make_layer(dims[l],dims[l+1]))
         self.middle = nn.Sequential(*self.layer)
         self.output = nn.Sequential(nn.Linear(dims[-1],7),
                                 nn.Softmax(dim=1))
+        self.init_weights()
 
     def make_layer(self,input_ch, output_ch):
         l = nn.Sequential(nn.Linear(input_ch,output_ch),
@@ -33,10 +36,14 @@ class NNmodel(nn.Module):
                         nn.Dropout(self.dropout))
         return l
 
+    def init_weights(self):
+        for m in self.modules():
+            if isinstance(m,nn.Linear):
+                m.weight.data.normal_(0, 0.35)
+                m.bias.data.zero_()
+
     def forward(self,x):
         output = self.input(x)
-        # for l in range(self.depth-1):
-        #     output = self.layer[l](output)
         output = self.middle(output)
         output = self.output(output)
         return output
@@ -49,21 +56,31 @@ if __name__ == "__main__":
 
     train_data = (train_data - mean)/std
     test_data = (test_data - mean)/std
-    # label = np.eye(label.shape[0], 7, k=0, dtype=np.float32)
-    # device = torch.device("cuda:2") #if torch.cuda.is_available() else "cpu")
+
     device = torch.device("cpu") #if torch.cuda.is_available() else "cpu")
     
-    loss_fn = nn.CrossEntropyLoss()
+    # loss_fn = nn.CrossEntropyLoss(weight=torch.tensor([0.09948339, 0.15253618, 0.38630809, 0.12371339, 0.10459171, 0.07649955,0.05686769]))
+    loss_fn = nn.CrossEntropyLoss(weight=torch.tensor([0.09948339, 0.15253618, 9, 0.12371339, 0.10459171, 0.07649955,0.05686769]))
+
 
     model = NNmodel(7,[32,64,128,256,128,64,32],0.1)
     model.to(device)
-    optimizer = torch.optim.SGD(model.parameters(), lr = 0.004, momentum=0.9, weight_decay=0.0005)
+    optimizer = torch.optim.SGD(model.parameters(), lr = 0.001, momentum=0.9, weight_decay=0.005)
+    # optimizer = torch.optim.Adam(model.parameters(),lr = 0.0002,weight_decay=0.00005)
+
+    step_lr = torch.optim.lr_scheduler.MultiStepLR(optimizer=optimizer,milestones=[40,80], gamma=1)
     # warm_lr =  torch.optim.lr_scheduler.LinearLR(optimizer=optimizer,start_factor=0.5,end_factor = 0.1, total_iters=4)
-    step_lr = torch.optim.lr_scheduler.MultiStepLR(optimizer=optimizer,milestones=[5,20,40,60], gamma=0.5)
     # all_lr = torch.optim.lr_scheduler.SequentialLR(optimizer=optimizer,schedulers= [warm_lr,step_lr],milestones=[5])
     test_lb_onehot = label_binarize(test_lb,classes = [0,1,2,3,4,5,6])
 
-    epochs = 80
+    train_dataset = TensorDataset(torch.Tensor(train_data),torch.LongTensor(train_lb))
+    test_dataset = TensorDataset(torch.Tensor(test_data),torch.LongTensor(test_lb))
+    batch_sz = 5
+
+    train_loader = DataLoader(train_dataset,batch_size= batch_sz, shuffle=False)
+    test_loader = DataLoader(test_dataset,batch_size= batch_sz, shuffle=False)
+
+    epochs = 100
     ax_epoch = []
     ax_trainloss = []
     ax_testloss = []
@@ -76,12 +93,13 @@ if __name__ == "__main__":
         test_loss = 0
         train_num = train_data.shape[0]
         test_num = test_data.shape[0]
-        for i in range(train_num):
-            input, lb = torch.tensor(train_data[i,:]).to(device), torch.tensor(train_lb[i,:],dtype=torch.long).to(device)
-            input = torch.unsqueeze(input,0)
+        for i, data in enumerate(train_loader):
+            # input, lb = torch.tensor(train_data[i,:]).to(device), torch.tensor(train_lb[i,:],dtype=torch.long).to(device)
+            # input = torch.unsqueeze(input,0)
+            input, lb = data
             optimizer.zero_grad()
             out = model(input).to(device)
-            loss = loss_fn(out, lb)
+            loss = loss_fn(out, torch.squeeze(lb))
             loss.backward()
             optimizer.step()
             train_loss += loss.item()
@@ -90,18 +108,19 @@ if __name__ == "__main__":
         acc =0.0
         best_acc = 0.0
         with torch.no_grad():
-            for i in range(test_num):
+            for i in range(test_data.shape[0]):
                 test_in, _lb = torch.tensor(test_data[i,:]).to(device), torch.tensor(test_lb[i,:],dtype=torch.long).to(device)
                 test_in = torch.unsqueeze(test_in,0)
+                # test_in, _lb = data
                 out = model(test_in)
                 result = torch.argmax(out)
-                loss = loss_fn(out, _lb)
+                loss = loss_fn(out,  _lb)
                 acc += torch.eq(result,_lb).sum().item()
                 test_loss += loss.item()
                 pred[i,:] = out.detach().numpy()
         ap  = average_precision_score(test_lb_onehot,pred)
         print("train epoch [{}/{}]  train_loss:{:.3f} test_loss:{:.3f} accurancy:{:.3f}, ap:{:.3f}".format(
-                                    epoch+1, epochs, train_loss/train_num,test_loss/test_num, acc/test_num,ap))
+                                    epoch+1, epochs, batch_sz*train_loss/train_num,test_loss/test_num, acc/test_num,ap))
         step_lr.step()
         if acc >= best_acc:
             best_acc = acc
@@ -110,7 +129,7 @@ if __name__ == "__main__":
         
 
         ax_ap.append(ap)
-        ax_trainloss.append( train_loss/train_num)
+        ax_trainloss.append( batch_sz*train_loss/train_num)
         ax_testloss.append(test_loss/test_num)
         ax_acc.append(acc/test_num)
         ax_epoch.append(epoch)

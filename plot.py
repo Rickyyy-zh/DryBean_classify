@@ -18,7 +18,6 @@ if __name__ == "__main__":
     count = [0,0,0,0,0,0,0]
     count_train = [0,0,0,0,0,0,0]
     count_test = [0,0,0,0,0,0,0]
-
     for idx,item in enumerate(data_dict):
         for i,lb in enumerate(label_list):
             if item["label"] == i:
@@ -36,6 +35,11 @@ if __name__ == "__main__":
     x1_width = [i-0.15 for i in x_width]
     x2_width = [i+0.15 for i in x_width]
     fig = plt.figure()
+    samples = np.array(count)
+    samples = 1/samples
+    samp_sum = np.sum(samples)
+    samples = samples/samp_sum
+    print(samples)
 
     plt.bar(x1_width,count,width=0.3,label="overall")
     plt.bar(x2_width,count_train,width=0.3,label="train_data")
